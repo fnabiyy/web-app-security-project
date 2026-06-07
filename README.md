@@ -374,13 +374,11 @@ Stored XSS creates a persistent attack vector because malicious code remains sto
 ###### D. Source Code Modifications
 
 Before Code (Vulnerable):
-Forms\Components\Textarea::make('notes')
+<img width="633" height="91" alt="Screenshot 2026-06-08 040157" src="https://github.com/user-attachments/assets/0b4bc374-f61e-40dc-b8a3-95776b28b7e2" />
 
 After Code (Mitigated & Hardened):
-Forms\Components\Textarea::make('notes')
-    ->maxLength(500)
-    ->dehydrateStateUsing(fn ($state) => strip_tags($state))
-    
+<img width="748" height="119" alt="Screenshot 2026-06-08 040255" src="https://github.com/user-attachments/assets/f05ca582-a94c-40c9-8553-9c03fbb2e015" />
+
 ###### E. Summary & Mitigation Result
 
 The implemented solution removes all HTML and JavaScript tags before data is stored in the database. The strip_tags() function ensures that malicious scripts cannot persist within invoice records, significantly reducing the risk of Stored Cross-Site Scripting attacks.
@@ -462,18 +460,11 @@ If unrestricted file uploads are permitted, attackers may:
 ###### D. Source Code Modifications
 
 Before Code (Vulnerable):
-
-Forms\Components\FileUpload::make('product_image')
+<img width="630" height="168" alt="Screenshot 2026-06-08 035833" src="https://github.com/user-attachments/assets/e24b1b52-d918-44c9-93f9-399a561c3e0d" />
 
 After Code (Mitigated & Hardened):
+<img width="659" height="308" alt="Screenshot 2026-06-08 035501" src="https://github.com/user-attachments/assets/7e9b533b-3c0d-4106-b613-d9b697808366" />
 
-Forms\Components\FileUpload::make('product_image')
-    ->acceptedFileTypes([
-        'image/jpeg',
-        'image/png'
-    ])
-    ->maxSize(2048)
-    ->preserveFilenames(false)
 
 ###### E. Summary & Mitigation Result
 
