@@ -163,9 +163,9 @@ The original code checked credential authenticity strings immediately, allowing 
 The Invoice Management System implements Role-Based Access Control (RBAC) to ensure that users can only perform actions according to their assigned responsibilities.
 
 Three user roles are available within the system:
-• Superadmin – Full access to all system modules and records.
-• Admin – Allowed to manage customers, invoices, recurring invoices, and payments.
-• Customer – Limited to viewing information only and prohibited from modifying system records and cannot access the Customers page.
+*• Superadmin – Full access to all system modules and records.
+*• Admin – Allowed to manage customers, invoices, recurring invoices, and payments.
+*• Customer – Limited to viewing information only and prohibited from modifying system records and cannot access the Customers page.
 
 The authorization mechanism was implemented in the resource files responsible for managing Customers, Invoices, Recurring Invoices, and Payments.
 
@@ -193,19 +193,19 @@ This violates the principle of least privilege and increases the risk of unautho
 ###### B. Security Risk Impact
 Insufficient authorization controls may allow attackers or unauthorized users to:
 
-• Modify invoice information
-• Create fraudulent payments
-• Delete customer records
-• Access sensitive business data
-• Disrupt normal business operations
+* Modify invoice information
+* Create fraudulent payments
+* Delete customer records
+* Access sensitive business data
+* Disrupt normal business operations
 
 Such actions could compromise data integrity, financial records, and system reliability.
 
 ###### C. Where the Code Was Updated
 * **File Directory Path:** `app/Filament/Resources/CustomerResource.php
-app/Filament/Resources/InvoiceResource.php
-app/Filament/Resources/RecurringInvoiceResource.php
-app/Filament/Resources/PaymentResource.php
+  app/Filament/Resources/InvoiceResource.php
+*app/Filament/Resources/RecurringInvoiceResource.php
+*app/Filament/Resources/PaymentResource.php
 `
 * **Target Schema Section:** Authorization methods added within each Resource class.
 
