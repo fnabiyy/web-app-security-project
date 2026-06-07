@@ -160,9 +160,166 @@ The original code checked credential authenticity strings immediately, allowing 
 ----
 #### c. Authorization
 
+
 ----
-#### d. XSS and CSRF Prevention
+#### d. Database Security Principles
 
 
 ----
-#### e. Database Security Principles
+#### e. XSS and CSRF Prevention
+##### 1. Technical Framework Overview
+
+The application implements multiple layers of protection against client-side attacks that target user sessions and browser execution environments. These controls are designed to prevent malicious scripts from being stored within invoice records and to protect authenticated users from unauthorized request forgery attacks.
+
+The security framework focuses on:
+
+- Input sanitization of user-generated content before database storage.
+- Automatic Cross-Site Request Forgery (CSRF) token validation through Laravel middleware.
+- Additional confirmation controls for sensitive actions involving record deletion.
+
+##### 2. Vulnerability 1: Stored Cross-Site Scripting (CWE-79)
+- Vulnerability Name: Improper Input Sanitization in Invoice Notes Field
+- Technical Identifier: CWE-79 (Improper Neutralization of Input During Web Page Generation)
+- Risk Rating: Medium / High
+  
+###### A. Description & Testing Proof
+
+During security testing, the Invoice Notes field accepted arbitrary HTML and JavaScript content without sanitization. The following payload was entered into the notes field:
+
+<script>alert('XSS-Test')</script>
+
+The application successfully stored the payload inside the database. If rendered without sanitization, the script could execute whenever an administrator or user views the invoice.
+
+###### B. Security Risk Impact
+
+Stored XSS creates a persistent attack vector because malicious code remains stored in the database. Attackers may exploit this weakness to:
+
+- Steal session cookies and authentication tokens.
+- Hijack administrator accounts.
+- Redirect users to malicious websites.
+- Manipulate invoice content displayed to users.
+  
+###### C. Where the Code Was Updated
+- File Directory Path: app/Filament/Resources/InvoiceResource.php
+- Target Schema Section: Invoice Notes Field (Textarea::make('notes'))
+
+###### D. Source Code Modifications
+
+Before Code (Vulnerable):
+Forms\Components\Textarea::make('notes')
+
+After Code (Mitigated & Hardened):
+Forms\Components\Textarea::make('notes')
+    ->maxLength(500)
+    ->dehydrateStateUsing(fn ($state) => strip_tags($state))
+    
+###### E. Summary & Mitigation Result
+
+The implemented solution removes all HTML and JavaScript tags before data is stored in the database. The strip_tags() function ensures that malicious scripts cannot persist within invoice records, significantly reducing the risk of Stored Cross-Site Scripting attacks.
+
+##### 3. Vulnerability 2: Cross-Site Request Forgery (CSRF)
+- Vulnerability Name: Unauthorized Request Execution Through Forged Requests
+- Technical Identifier: CWE-352 (Cross-Site Request Forgery)
+- Risk Rating: Medium
+
+###### A. Description & Testing Proof
+
+Cross-Site Request Forgery occurs when an authenticated user is tricked into submitting unintended requests to the web application. Attackers commonly use hidden forms or malicious links to force users into performing actions without their knowledge.
+
+###### B. Security Risk Impact
+
+Without CSRF protection, attackers could:
+
+- Modify invoice records.
+- Delete important business data.
+- Create unauthorized transactions.
+- Alter user account information.
+
+###### C. Existing Protection Mechanism
+
+The application utilizes Laravel's built-in CSRF protection middleware:
+
+App\Http\Middleware\VerifyCsrfToken
+
+This middleware automatically generates and validates unique CSRF tokens for all protected requests.
+
+###### D. Additional Security Enhancement
+
+Sensitive delete operations were configured to require user confirmation before execution.
+
+Example:
+
+DeleteAction::make()
+    ->requiresConfirmation()
+
+###### E. Summary & Mitigation Result
+
+Laravel automatically validates every incoming request against a valid CSRF token. Requests that fail validation are immediately rejected. Combined with confirmation prompts, this significantly reduces the likelihood of unauthorized or accidental destructive actions.
+
+----
+#### f. Database Security Principles
+##### 1. Technical Framework Overview
+
+The application implements file upload security controls to ensure that uploaded files cannot be abused as a mechanism for malware distribution, server compromise, or unauthorized file execution.
+
+The security framework focuses on:
+
+- Restricting accepted file formats.
+- Limiting file upload size.
+- Preventing filename manipulation attacks.
+- Protecting sensitive application files from public exposure.
+
+##### 2. Vulnerability 1: Unrestricted File Upload
+- Vulnerability Name: Improper Restriction of Uploaded File Types
+- Technical Identifier: CWE-434 (Unrestricted Upload of File with Dangerous Type)
+- Risk Rating: High
+
+###### A. Description & Testing Proof
+
+The application originally accepted uploaded files with minimal restrictions. Attackers could potentially attempt to upload malicious files disguised as legitimate content.
+
+###### B. Security Risk Impact
+
+If unrestricted file uploads are permitted, attackers may:
+
+- Upload malicious executable files.
+- Distribute malware through uploaded content.
+- Attempt remote code execution attacks.
+- Consume excessive server storage resources.
+
+###### C. Where the Code Was Updated
+- File Directory Path: app/Filament/Resources/ItemResource.php
+- Target Schema Section: Product Image Upload Component
+
+###### D. Source Code Modifications
+
+Before Code (Vulnerable):
+
+Forms\Components\FileUpload::make('product_image')
+
+After Code (Mitigated & Hardened):
+
+Forms\Components\FileUpload::make('product_image')
+    ->acceptedFileTypes([
+        'image/jpeg',
+        'image/png'
+    ])
+    ->maxSize(2048)
+    ->preserveFilenames(false)
+
+###### E. Summary & Mitigation Result
+
+The enhanced implementation only accepts JPEG and PNG image formats, limits uploads to 2 MB, and automatically generates safe filenames. These controls significantly reduce the risk of malicious file uploads, storage abuse, and filename-based attacks.
+
+##### 3. Protection of Sensitive Files and Directories
+
+The application also protects critical system resources from unauthorized exposure. Sensitive files and directories include:
+
+- .env
+- vendor/
+- storage/
+- composer.json
+
+These resources contain application secrets, framework dependencies, and internal configuration data that should never be directly accessible by end users.
+
+By restricting access to these resources and limiting file upload capabilities, the overall security posture of the application is significantly improved.
