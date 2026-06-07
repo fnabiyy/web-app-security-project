@@ -145,9 +145,14 @@ class ItemResource extends Resource
 
                         Forms\Components\FileUpload::make('product_image')
                             ->multiple()
-                            ->downloadable()
                             ->directory('product_image')
-                            ->acceptedFileTypes(['image/*'])
+                            ->acceptedFileTypes([
+                                'image/jpeg',
+                                'image/png'
+                            ])
+                            ->maxSize(2048)
+                            ->preserveFilenames(false)
+                            ->downloadable()
                             ->columnSpanFull(),
                         Forms\Components\FileUpload::make('attachment')
                             ->multiple()
