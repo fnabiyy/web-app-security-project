@@ -76,6 +76,8 @@ In short, the original web app had no safety boundaries, letting users type a ne
 By adding `minValue(1)`, we built a solid backend shield. Now, even if a hacker uses sneaky tools to bypass the browser screen, our server instantly catches the bad input, stops the math calculation, and forces the user to enter a real, positive number.
 <img width="1825" height="879" alt="IV_flaw1_02" src="https://github.com/user-attachments/assets/bfa855fc-f405-405a-98d2-58d12076f263" />
 
+**Vulnerability 2 :  Improper Input Validation (CWE-20)**
+
 ----
 
 #### b. Authentication
