@@ -36,7 +36,7 @@ The core objectives of the security engineering modifications implemented in thi
 
 ### Web Application Security Enhancements
 
-----
+-----
 
 #### a. Input Validation
 **Vulnerability 1 :  Improper Input Validation (CWE-20)**
@@ -76,8 +76,33 @@ In short, the original web app had no safety boundaries, letting users type a ne
 By adding `minValue(1)`, we built a solid backend shield. Now, even if a hacker uses sneaky tools to bypass the browser screen, our server instantly catches the bad input, stops the math calculation, and forces the user to enter a real, positive number.
 <img width="1825" height="879" alt="IV_flaw1_02" src="https://github.com/user-attachments/assets/bfa855fc-f405-405a-98d2-58d12076f263" />
 
-**Vulnerability 2 :  Improper Input Validation (CWE-20)**
+-------
+**Vulnerability 2 : Improper Neutralization of Input During Web Page Generation (CWE-79)**
 
+##### 1. Flaw Overview: Bad Text Filtering / Code Injection (Stored XSS)
+* **Vulnerability Name:** Lacking Input Sanitization (Stored Cross-Site Scripting)
+* **Technical Identifier:** CWE-79 (Improper Neutralization of Input During Web Page Generation) / OWASP A03:2021-Injection
+* **Risk Rating:** Medium / High
+
+##### 2. Description in Simple English
+The web application allows users to type raw website programming code (such as HTML and JavaScript tags) into text areas like the Notes box. The application then saves that code directly into the database without cleaning it up.
+
+##### 3. How It Was Proved (Vulnerability Testing)
+During testing, a malicious script tag (`<h1>Vulnerable Note</h1><script>alert('XSS-Test')</script>`) was typed into the Invoice Notes box. The web application saved the invoice perfectly into the database without stripping any of the code away.
+<img width="1534" height="825" alt="IV_flaw2_01" src="https://github.com/user-attachments/assets/03c11dbf-191b-4d9c-887f-aad833ec4cd5" />
+
+##### 4. Why It Is a Security Risk
+Because the dangerous code is now living inside your database, whenever an administrator opens that invoice to view it or tries to print it out, the hidden script will automatically run inside their browser. This can allow hackers to secretly steal administrator passwords, hijack user sessions, or change the look of the website.
+
+##### 5. Where the Code Was Updated
+The security fix was implemented inside the invoice backend resource management layout file:
+* **File Directory Path:** `app/Filament/Resources/InvoiceResource.php`
+* **Target Schema Section:** Inside the Form Schema array, specifically inside the `Textarea` component definition managing the invoice comment section (`notes`).
+
+##### 6. Source Code Modifications
+
+###### Before Code (Vulnerable)
+The application accepted free-form string entries inside the text area directly, saving everything—including active scripts and raw HTML layouts—straight to your persistent database:
 ----
 
 #### b. Authentication
