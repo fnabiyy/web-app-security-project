@@ -3,7 +3,7 @@
 
 ---
 
-### a. Student Information
+### Group Members
 
 | Name | Matric No. | 
 | :--- | :--- | 
@@ -11,12 +11,12 @@
 
 ---
 
-### b. Title of the Web Application
+### Title of the Web Application
 * **Application Title:** Automated Secure Invoice and Payment Management System
 
 ---
 
-### c. Introduction of Web Application
+### Introduction of Web Application
 For today's fast-paced business environment, freelancers, small businesses, and service providers require efficient instruments for managing billing and payment processes. To this end, we recommend designing a Simple Invoice System, a built-in web-based application that can simplify the creation, sending, and following of invoices.
 
 The system will provide users with fundamental invoicing features through a simplified interface. Users will be able to securely log in or sign up, manage their clients, create and edit invoices, and track the payment status. Compared to more advanced platforms, this app is confined to the basics of invoicing and is ideal for users who need a basic but reliable billing facility.
@@ -25,7 +25,7 @@ This project borrows ideas from open-source options like Invoice Ninja but limit
 
 ---
 
-### d. Objective of the Enhancements
+### Objective of the Enhancements
 The core objectives of the security engineering modifications implemented in this project are:
 1. **To Fortify Authentication Mechanisms:** Eliminate brute-force exposure lines by introducing adaptive request-throttling walls.
 2. **To Enforce Strict Access Controls:** Implement structural input complexity rules to safeguard credential boundaries from low-entropy exploitation.
@@ -34,10 +34,10 @@ The core objectives of the security engineering modifications implemented in thi
 
 ---
 
-### e. Web Application Security Enhancements
+### Web Application Security Enhancements
 
-#### i. Input Validation
-* **Validated Input Elements:** User Registration Parameters (`name`, `email`, `password`, `password_confirmation`), Invoice Record Modals, and Payment Transaction Fields (`amount`, `transaction_reference`).
+#### a. Input Validation
+* **Vulnerability 1 :  Improper Input Validation** User Registration Parameters (`name`, `email`, `password`, `password_confirmation`), Invoice Record Modals, and Payment Transaction Fields (`amount`, `transaction_reference`).
 * **Client-Side Validation:** Handled dynamically via Filament’s real-time input masks and browser-level reactive constraints. Text inputs explicitly restrict maximum string limits (`maxLength(255)`), enforce specific HTML5 input types (e.g., `type="email"`), and utilize structural field locking (`required()`) to catch empty form payloads before transmission.
 * **Server-Side Validation:** Enforced rigorously using Laravel’s backend validation layer during lifecycle hooks. Even if an attacker uses browser inspection tools to bypass client constraints, the server catches bad inputs. For example, transaction inputs are bound to numeric filters (`numeric()`) and minimum mathematical boundaries (`rule('min:0.01')`) to completely block parameter tampering, negative values, or zero-value exploitation.
 
