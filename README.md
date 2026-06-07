@@ -239,7 +239,96 @@ This implementation follows the Principle of Least Privilege and significantly r
 
 
 ----
-#### d. Database Security Principles
+#### d. Database Security Principles- SQL Injection Prevention
+
+##### 1. Technical Framework Overview
+
+The system implements database-layer protection against SQL Injection attacks by utilizing **Laravel Eloquent ORM** as the primary database interaction framework.
+
+Instead of manually constructing SQL statements, the application performs database operations through Eloquent query methods, which automatically generate parameterized queries and securely bind user-supplied values before execution.
+
+The SQL Injection security review focused on invoice-related database operations, particularly functions responsible for retrieving and generating invoice records.
+
+##### 2. Database Security Architecture
+
+* **Application Layer Validation:** User input is validated before being processed by the system, reducing the likelihood of malformed or malicious data reaching the database layer.
+* **Eloquent ORM Query Layer:** Database interactions are performed through Laravel Eloquent methods rather than manually written SQL statements.
+* **Parameterized Query Binding:** User-supplied values are automatically bound as query parameters, preventing them from being interpreted as executable SQL code.
+
+Together, these layers provide protection against SQL Injection attacks and help preserve database integrity.
+
+#### 3. Vulnerability: SQL Injection (CWE-89)
+
+* **Vulnerability Name:** SQL Injection
+* **Risk Rating:** High
+
+###### A. Description & Testing Review
+
+SQL Injection occurs when user-controlled input is directly concatenated into SQL statements without proper parameterization or sanitization.
+
+If raw SQL queries are implemented incorrectly, attackers may inject malicious SQL payloads into application inputs and manipulate database operations.
+
+During the security assessment, invoice-related database functionality was reviewed to verify that queries were executed through Laravel Eloquent ORM rather than dynamically concatenated SQL statements.
+
+The review confirmed that database operations utilize Eloquent query methods, which automatically apply parameterized query bindings.
+
+**Image**
+
+###### B. Security Risk Impact
+
+If SQL Injection vulnerabilities exist, attackers may be able to:
+
+* Access confidential customer information
+* Modify invoice records
+* Delete business data
+* Bypass application restrictions
+* Execute unauthorized database commands
+
+Such attacks may compromise the confidentiality, integrity, and availability of information stored within the system.
+
+###### C. Where the Code Was Reviewed
+
+* **File Directory Path:** `app/Models/Invoice.php`
+* **Target Function:** `generate_invoice_number($tenant_id)`
+
+###### D. Source Code Review
+
+The reviewed function retrieves invoice information using Eloquent ORM methods rather than constructing raw SQL queries.
+
+**Current Secure Implementation**
+
+```php
+static function generate_invoice_number($tenant_id)
+{
+    return Invoice::where('team_id', $tenant_id)
+        ->orderBy('id', 'desc')
+        ->first()?->id + 1;
+}
+````
+
+The query uses:
+
+* `Invoice::where()`
+* `orderBy()`
+* `first()`
+
+These Eloquent methods automatically generate parameterized SQL queries and securely bind the `$tenant_id` value to the database query.
+
+As a result, user input cannot alter the structure of the SQL command.
+
+No source code modification was required because secure database access practices were already implemented through Laravel Eloquent ORM and Filament's database abstraction layer.
+
+**Image**
+
+###### E. Summary & Mitigation Result
+
+In summary, the Invoice Management System already incorporates SQL Injection protection through Laravel Eloquent ORM, which automatically executes parameterized database queries.
+
+Unlike traditional applications that manually concatenate user input into SQL statements, the current implementation relies on ORM-generated queries that securely separate SQL commands from user-supplied data.
+
+The security enhancement activity therefore focused on reviewing and verifying that database operations continue to use Eloquent methods rather than unsafe raw SQL statements. This ensures that user-supplied values are securely bound to database queries and cannot be interpreted as executable SQL commands.
+
+By relying on Eloquent ORM together with application-level input validation, the system significantly reduces the risk of SQL Injection attacks and strengthens the overall security of the database layer.
 
 
 ----
