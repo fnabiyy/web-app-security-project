@@ -7,7 +7,7 @@
 
 | Name | Matric No. | 
 | :--- | :--- | 
-| FATIEHAH NABILAH | 2317546 | 
+| NURFATIEHAH NABILAH BINTI ABDUL NAJID | 2317546 | 
 
 ---
 
