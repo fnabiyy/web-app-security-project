@@ -21,7 +21,31 @@ class CustomerResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?int $navigationSort = 2;
 
+// Authorization Enhancement
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasRole(['superadmin', 'admin']);
+    }
 
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->hasRole(['superadmin', 'admin']);
+    }
+
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->hasRole(['superadmin', 'admin']);
+    }
+
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->hasRole(['superadmin', 'admin']);
+    }
+
+    
     // protected static ?string $navigationLabel = 'Client';
     // protected static ?string $modelLabel = 'Client';
     // protected static ?string $pluralModelLabel = 'Client';
