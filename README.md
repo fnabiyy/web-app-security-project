@@ -37,12 +37,23 @@ The core objectives of the security engineering modifications implemented in thi
 ### Web Application Security Enhancements
 
 #### a. Input Validation
-**Vulnerability 1 :  Improper Input Validation**
-* The Technical Name: Improper Input Validation (CWE-20)
-* What it means in simple English: The web app forgets to check if a user is entering a valid, positive number. It blindly trusts whatever number the user types into the Quantity or Price boxes.
-* How you proved it: You typed -38 into the headphones quantity box. Instead of blocking you, the web app multiplied it by the price and calculated a final invoice total of -RM1,900.00, then successfully saved it into the database.
-* Why it’s a security risk: A malicious user could use this to manipulate their invoice. By creating a "negative bill," they could trick an accounting system into giving them free money, issuing fake refunds, or wiping away a real debt they owe a business.
-*<img width="1662" height="844" alt="IV_flaw1_01" src="https://github.com/user-attachments/assets/5473287f-e1b2-40f1-b7a5-ff9818edb4d7" />
+**Vulnerability 1 :  Improper Input Validation (CWE-20)**
+* **Vulnerability Name:** Range & Numeric Boundary Check Failure
+* **Technical Identifier:** CWE-20 (Improper Input Validation) / OWASP A03:2021-Injection
+* **Risk Rating:** High
+
+##### 2. Description in Simple English
+The web application forgets to check if a user is entering a valid, positive number. It blindly trusts whatever number the user types into the Quantity or Price boxes rather than validating the logical boundaries of the input payload.
+
+##### 3. How It Was Proved (Vulnerability Testing)
+During testing, a negative value of `-38` was typed into the headphones quantity input field. Instead of blocking the request, the web application accepted the value, multiplied it by the baseline price, and calculated a final negative invoice subtotal and total of `-RM1,900.00`. The system then successfully committed this broken state into the persistent database layer.
+  
+<img width="1662" height="844" alt="IV_flaw1_01" src="https://github.com/user-attachments/assets/5473287f-e1b2-40f1-b7a5-ff9818edb4d7" />
+
+* **Before Code : **
+  The input field only forced the data type to be an integer but had no lower boundary rules. This allowed negative numbers to pass directly through the math calculations.
+
+
 
 #### ii. Authentication
 Following authentication security best practices, the application gateway was hardened using two defense mechanisms:
