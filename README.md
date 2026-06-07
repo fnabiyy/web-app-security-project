@@ -414,9 +414,8 @@ This middleware automatically generates and validates unique CSRF tokens for all
 Sensitive delete operations were configured to require user confirmation before execution.
 
 Example:
-
-DeleteAction::make()
-    ->requiresConfirmation()
+<img width="499" height="63" alt="image" src="https://github.com/user-attachments/assets/076cf428-0362-49fa-8b5e-4e413838b5b4" />
+<img width="759" height="174" alt="image" src="https://github.com/user-attachments/assets/175ed4c4-63bd-43ea-8a74-08d23c242ec7" />
 
 ###### E. Summary & Mitigation Result
 
