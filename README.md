@@ -222,13 +222,13 @@ Such actions could compromise data integrity, financial records, and system reli
 
 
 ###### C. Where the Code Was Updated
-* **File Directory Path:** 
+ **File Directory Path:** 
 * `app/Filament/Resources/CustomerResource.php`
 * `app/Filament/Resources/InvoiceResource.php`
 * `app/Filament/Resources/RecurringInvoiceResource.php`
 * `app/Filament/Resources/PaymentResource.php`
 
-* **Target Schema Section:** Authorization methods added within each Resource class.
+**Target Schema Section:** Authorization methods added within each Resource class.
 
 ###### D. Source Code Modifications
 **I. InvoiceResource.php** 
