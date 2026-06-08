@@ -200,6 +200,27 @@ Allowing users to establish weak, easily guessable, or purely numeric passwords 
 In the original implementation, the system relied on generic validation settings. The mitigation replaces the default handler with an explicit rule validation chain that mandates multi-set character diversity to increase entry complexity.
 
 **Before Code (Vulnerable):**
+
+<img width="680" height="231" alt="Auth_flaw2_bfrCode" src="https://github.com/user-attachments/assets/2fe00012-45a1-4ece-a680-1d316bce3339" />
+
+**After Code (Mitigated & Hardened):**
+
+<img width="752" height="374" alt="Auth_flaw2_afterCode" src="https://github.com/user-attachments/assets/aab95a13-6112-4773-b9de-84579546ea68" />
+
+###### E. Summary & Mitigation Result
+In simple terms, the original signup form let anyone create accounts using incredibly weak, sequential passwords like "12345678", leaving user accounts highly vulnerable to automated guessing scripts.
+
+By rewrote the validation rules to require true character diversity, we built a robust front-gate defense implementing key security principles:
+* **Entropy Expansion:** Forcing a combination of uppercase letters, lowercase letters, numbers, and symbols vastly expands password complexity, making dictionary tools completely ineffective.
+* **Proactive Input Shielding:** Weak credential patterns are blocked instantly at the registration phase, ensuring low-entropy hashes can never be written to the database.
+* **Granular Validation UI:** The user interface now handles input verification dynamically, throwing targeted error prompts until all security criteria are fully satisfied.
+
+<img width="1839" height="918" alt="Auth_flaw2_afterTest01" src="https://github.com/user-attachments/assets/a9261c3d-d64a-45e1-a3c5-2dbd5ce1399b" />
+<img width="1700" height="892" alt="Auth_flaw2_afterTest02" src="https://github.com/user-attachments/assets/04ab29f9-77c6-4575-b1bc-3e0d1f573087" />
+<img width="1690" height="859" alt="Auth_flaw2_afterTest03" src="https://github.com/user-attachments/assets/c0bb0b7e-8e59-41c5-8154-2829e8481c80" />
+
+
+
 ----
 #### c. Authorization
 ##### 1. Technical Framework Overview
