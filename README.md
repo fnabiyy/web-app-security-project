@@ -327,8 +327,6 @@ During the security assessment, database-related functionality was reviewed to v
 The review confirmed that invoice-related database operations utilize Eloquent methods, which automatically apply parameterized query bindings.
 
 
-**Image**
-
 ###### B. Security Risk Impact
 
 If SQL Injection vulnerabilities exist, attackers may be able to:
@@ -374,7 +372,6 @@ As a result, user input cannot alter the structure of the SQL command.
 
 No source code modification was required because secure database access practices were already implemented through Laravel Eloquent ORM and Filament's database abstraction layer.
 
-**Image**
 
 ###### E. Summary & Mitigation Result
 
