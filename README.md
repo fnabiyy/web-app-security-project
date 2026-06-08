@@ -457,107 +457,120 @@ By relying on Eloquent ORM together with application-level input validation, the
 ### **e. XSS and CSRF Prevention**
 ##### 1. Technical Framework Overview
 
-The application implements multiple layers of protection against client-side attacks that target user sessions and browser execution environments. These controls are designed to prevent malicious scripts from being stored within invoice records and to protect authenticated users from unauthorized request forgery attacks.
+The Invoice Sensei application implements multiple defensive controls to protect users from browser-based attacks, specifically Cross-Site Scripting (XSS) and Cross-Site Request Forgery (CSRF). These attacks target authenticated users and may lead to session hijacking, unauthorized actions, or manipulation of application data.
 
-The security framework focuses on:
+The security enhancements focus on:
 
-- Input sanitization of user-generated content before database storage.
-- Automatic Cross-Site Request Forgery (CSRF) token validation through Laravel middleware.
-- Additional confirmation controls for sensitive actions involving record deletion.
+- Sanitizing user-supplied content before database storage.
+- Preventing execution of malicious scripts embedded within form inputs.
+- Enforcing Laravel's built-in CSRF protection mechanisms.
+- Requiring user confirmation before executing sensitive actions.
 
 ##### 2. Vulnerability 1: Stored Cross-Site Scripting (CWE-79)
-- **Vulnerability Name:** Improper Input Sanitization in Invoice Notes Field
+- **Vulnerability Name:** Stored Cross-Site Scripting (Stored XSS)
 - **Technical Identifier:** CWE-79 (Improper Neutralization of Input During Web Page Generation)
-- **Risk Rating:** Medium / High
+- **Risk Rating:** High
   
 ###### A. Description & Testing Proof
 
-During security testing, the Invoice Notes field accepted arbitrary HTML and JavaScript content without sanitization. The following payload was entered into the notes field:
+The Invoice Notes field originally accepted arbitrary HTML and JavaScript content without sanitization. During security testing, the following payload was submitted:
 
 `<script>alert('XSS-Test')</script>`
 
-The application successfully stored the payload inside the database. If rendered without sanitization, the script could execute whenever an administrator or user views the invoice.
+The application accepted and stored the payload inside the database. Storing executable scripts creates a persistent attack vector because the payload remains available whenever the stored record is viewed.
 
 ###### B. Security Risk Impact
 
-Stored XSS creates a persistent attack vector because malicious code remains stored in the database. Attackers may exploit this weakness to:
+If malicious scripts are stored in application records, attackers may:
 
-- Steal session cookies and authentication tokens.
-- Hijack administrator accounts.
+- Execute JavaScript within another user's browser.
+- Steal session cookies or authentication tokens.
+- Modify displayed invoice content.
 - Redirect users to malicious websites.
-- Manipulate invoice content displayed to users.
+- Perform actions on behalf of authenticated users.
   
 ###### C. Where the Code Was Updated
 - **File Directory Path:** `app/Filament/Resources/InvoiceResource.php`
-- **Target Schema Section:** Invoice Notes Field `(Textarea::make('notes'))`
+- **Target Schema Section:** Invoice Notes Field `(Textarea::make('short_description'))`
 
 ###### D. Source Code Modifications
 
-Before Code (Vulnerable):
-<img width="633" height="91" alt="Screenshot 2026-06-08 040157" src="https://github.com/user-attachments/assets/0b4bc374-f61e-40dc-b8a3-95776b28b7e2" />
+The vulnerability was mitigated by implementing server-side validation rules on user input fields. A regular expression validation rule was added to detect and reject JavaScript `<script>` tags before the data is accepted by the application.
 
-After Code (Mitigated & Hardened):
-<img width="748" height="119" alt="Screenshot 2026-06-08 040255" src="https://github.com/user-attachments/assets/f05ca582-a94c-40c9-8553-9c03fbb2e015" />
+<img width="638" height="148" alt="image" src="https://github.com/user-attachments/assets/239e201f-1de3-4cae-bed6-ef7932b74191" />
+
+
+The validation rule prevents users from submitting content containing embedded script tags. Any request containing a matching pattern is rejected and a validation error is returned to the user.
+
+This approach ensures that malicious JavaScript payloads cannot be submitted through the application form and reduces the risk of Stored Cross-Site Scripting (XSS) attacks.
+
 
 ###### E. Summary & Mitigation Result
 
-The implemented solution removes all HTML and JavaScript tags before data is stored in the database. The `strip_tags()` function ensures that malicious scripts cannot persist within invoice records, significantly reducing the risk of Stored Cross-Site Scripting attacks.
+Originally, the application accepted user input without checking for malicious script content. An attacker could attempt to inject JavaScript payloads such as:
+
+`<script>alert('XSS-Test')</script>`
+
+The enhanced implementation introduces server-side validation using a regular expression rule that detects and blocks script tags before the data is processed or stored.
+
+As a result, malicious payloads are rejected at the validation stage, reducing the risk of Stored Cross-Site Scripting attacks and improving the overall security of user-supplied content.
 
 ##### 3. Vulnerability 2: Cross-Site Request Forgery (CSRF)
-- **Vulnerability Name:** Unauthorized Request Execution Through Forged Requests
+- **Vulnerability Name:** Cross-Site Request Forgery (CSRF)
 - **Technical Identifier:** CWE-352 (Cross-Site Request Forgery)
 - **Risk Rating:** Medium
 
 ###### A. Description & Testing Proof
 
-Cross-Site Request Forgery occurs when an authenticated user is tricked into submitting unintended requests to the web application. Attackers commonly use hidden forms or malicious links to force users into performing actions without their knowledge.
+Cross-Site Request Forgery occurs when an attacker tricks an authenticated user into unknowingly submitting requests to the application.
+**Examples include:**
+- Deleting invoices.
+- Updating customer information.
+- Creating unauthorized records.
+- Changing payment details.
 
 ###### B. Security Risk Impact
 
-Without CSRF protection, attackers could:
-
-- Modify invoice records.
-- Delete important business data.
-- Create unauthorized transactions.
-- Alter user account information.
+Successful CSRF attacks may result in unauthorized actions being executed using the victim's authenticated session.
 
 ###### C. Existing Protection Mechanism
 
-The application utilizes Laravel's built-in CSRF protection middleware:
-
+Laravel automatically provides CSRF protection through:
 `App\Http\Middleware\VerifyCsrfToken`
 
 This middleware automatically generates and validates unique CSRF tokens for all protected requests.
 
 ###### D. Additional Security Enhancement
 
-Sensitive delete operations were configured to require user confirmation before execution.
-
+To further reduce accidental or malicious destructive actions, delete operations were enhanced using:
 Example:
 <img width="499" height="63" alt="image" src="https://github.com/user-attachments/assets/076cf428-0362-49fa-8b5e-4e413838b5b4" />
 <img width="759" height="174" alt="image" src="https://github.com/user-attachments/assets/175ed4c4-63bd-43ea-8a74-08d23c242ec7" />
 <img width="1280" height="535" alt="image" src="https://github.com/user-attachments/assets/a59b52d9-f66c-4213-90c2-862ce67bb7a3" />
 <img width="1280" height="493" alt="image" src="https://github.com/user-attachments/assets/a752089a-21ce-4bb8-ba7c-9ad4ec84a303" />
 
-###### E. Summary & Mitigation Result
+Users must explicitly confirm the deletion request before the operation is executed.
 
-Laravel automatically validates every incoming request against a valid CSRF token. Requests that fail validation are immediately rejected. Combined with confirmation prompts, this significantly reduces the likelihood of unauthorized or accidental destructive actions.
+###### E. Summary and Mitigation Result
+
+Laravel's CSRF middleware protects all state-changing requests by validating CSRF tokens. Combined with confirmation prompts for destructive actions, the application significantly reduces the risk of unauthorized request execution and accidental data deletion.
 
 ----
 #### f. File Security Principles
 ##### 1. Technical Framework Overview
 
-The application implements file upload security controls to ensure that uploaded files cannot be abused as a mechanism for malware distribution, server compromise, or unauthorized file execution.
+The application implements file security controls to protect uploaded content, prevent malicious file execution, and reduce the risk of sensitive file exposure.
 
-The security framework focuses on:
+The security enhancements focus on:
 
-- Restricting accepted file formats.
-- Limiting file upload size.
-- Preventing filename manipulation attacks.
-- Protecting sensitive application files from public exposure.
+- Restricting accepted file types.
+- Limiting uploaded file sizes.
+- Preventing predictable filenames.
+- Protecting sensitive application directories and configuration files.
+- Reducing information disclosure through production configuration settings
 
 ##### 2. Vulnerability 1: Unrestricted File Upload
-- **Vulnerability Name:** Improper Restriction of Uploaded File Types
+- **Vulnerability Name:** Unrestricted Upload of Dangerous File Types
 - **Technical Identifier:** CWE-434 (Unrestricted Upload of File with Dangerous Type)
 - **Risk Rating:** High
 
@@ -571,8 +584,8 @@ If unrestricted file uploads are permitted, attackers may:
 
 - Upload malicious executable files.
 - Distribute malware through uploaded content.
-- Attempt remote code execution attacks.
 - Consume excessive server storage resources.
+- Exploit file-processing vulnerabilities.
 
 ###### C. Where the Code Was Updated
 - **File Directory Path:** `app/Filament/Resources/ItemResource.php`
