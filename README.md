@@ -31,12 +31,15 @@ This project borrows ideas from open-source options like Invoice Ninja but limit
 
 ---
 
-### Objective of the Enhancements
-The core objectives of the security engineering modifications implemented in this project are:
-1. **To Fortify Authentication Mechanisms:** Eliminate brute-force exposure lines by introducing adaptive request-throttling walls.
-2. **To Enforce Strict Access Controls:** Implement structural input complexity rules to safeguard credential boundaries from low-entropy exploitation.
-3. **To Establish Data Sanitization Standards:** Protect system operators and clients from malicious data injection vectors (such as cross-site scripting) targeting structural invoice metadata fields.
-4. **To Align with Industry Benchmarks:** Elevate the application’s overall architecture closer to the OWASP Top 10 framework compliance guidelines.
+## Objective of the Enhancements
+The core objective of this project is to transform Invoice Sensei from a fundamental billing utility into a secure, enterprise-ready web application. By identifying structural vulnerabilities and implementing a defense-in-depth architectural overhaul, the security engineering modifications aim to achieve the following:
+
+1. **To Harden Invoice Sensei's Authentication Gateway:** Eliminate online brute-force vulnerabilities and credential-guessing risks by implementing an intelligent entry-layer and backend account lockout mechanism (CWE-307).
+2. **To Enforce Strong Cryptographic Identity Safeguards:** Overhaul the user registration pipeline to mandate comprehensive password complexity metrics (enforcing mixed-case letters, numbers, and symbols), ensuring protection against low-entropy dictionary and credential-stuffing exploits (CWE-521).
+3. **To Establish Rigid Data Sanitization & Logical Input Boundaries:** Secure Invoice Sensei's internal accounting mechanics by adding server-side boundary checks against negative parameter tampering (CWE-20) and active tag-stripping handlers to completely neutralize persistent Stored Cross-Site Scripting (XSS/CWE-79) vectors within invoice metadata[cite: 1].
+4. **To Implement Strict Role-Based Access Control (RBAC):** Restrict system interaction based on the Principle of Least Privilege by mapping system views, creations, and deletions explicitly to defined corporate tiers (Superadmin, Admin, Customer), effectively neutralizing Broken Access Control pathways (CWE-862)[cite: 1].
+5. **To Protect Server Storage and Database Integrity:** Mitigate malicious web shell uploads and infrastructure attacks by binding file attachments to strict MIME-type filters (JPEG/PNG), maximum file sizes, and randomized filename masking (CWE-434), while continually relying on Laravel Eloquent ORM parameterized queries to block SQL Injection (SQLi/CWE-89) vectors[cite: 1].
+6. **To Maximize Compliance with Industry Security Standards:** Elevate Invoice Sensei's structural software architecture to achieve operational alignment with contemporary web safety frameworks, specifically fulfilling critical OWASP Top 10 compliance baselines[cite: 1].
 
 ---
 
