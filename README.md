@@ -150,13 +150,56 @@ Without an automated lockout policy, the authentication gateway is completely ex
 
 ###### C. Where the Code Was Updated
 * **File Directory Path:** `app/Filament/Pages/Auth/Login.php`
-* **Target Schema Section:** Inside the primary controller login execution class, specifically modifying the header intercept layout of the `authenticate()` execution method.
+* **Target Schema Section:** 1. `public function authenticate()` (The entrance intercept wall) 
+  2. `protected function loginProcess()` (The backend verification handler)
 
 ###### D. Source Code Modifications
 The original code checked credential authenticity strings immediately, allowing threat actors to repeat invalid connection loops instantly. The mitigation puts a security wall at the very top of the function to kill the process instantly if a session lock threshold is currently active.
 
 **Before Code (Vulnerable):**
 
+<img width="396" height="534" alt="Auth_flaw1_bfr01" src="https://github.com/user-attachments/assets/53a1c858-f09e-480a-adbc-983eddddbe36" />
+<img width="418" height="390" alt="Auth_flaw2_bfr02" src="https://github.com/user-attachments/assets/f4d088c6-2421-4279-904b-2bfc24d71dbe" />
+
+**After Code (Mitigated & Hardened):**
+
+<img width="751" height="721" alt="Auth_flaw1_after01" src="https://github.com/user-attachments/assets/c70ea9c3-c421-46c4-a912-1c74f1277382" />
+<img width="579" height="460" alt="Auth_flaw1_after02" src="https://github.com/user-attachments/assets/4b7d59aa-97c2-4080-ac5d-d28a403d9e78" />
+
+###### E. Summary & Mitigation Result
+In simple terms, the original login page allowed anyone to guess passwords indefinitely without any penalties. 
+
+By chaining the entrance interception block (`authenticate`) together with an active backend tracking system (`loginProcess`), we built a comprehensive defense system that implements several security best practices:
+* **Defense-in-Depth:** Placing verification checks across both the entry layer and the backend processing routine ensures that swift front-end automated bypass clicks cannot slide past our filters.
+* **Server Resource Protection:** By blocking requests early when a lockout is active, our server halts processing instantly without checking passwords or opening database connections. This saves server processor power and stops automated password-guessing tools from exhausting CPU resources.
+* **Safe Error Messaging:** The error interface safely alerts standard users exactly how much penalty time is remaining, while using neutral text that avoids leaking any sensitive backend architectural hints to an attacker.
+
+<img width="1899" height="852" alt="Auth_flaw1_afterTest01" src="https://github.com/user-attachments/assets/97aff3d8-16a7-4a85-8351-dc066fb6e317" />
+<img width="1870" height="865" alt="Auth_flaw1_afterTest02" src="https://github.com/user-attachments/assets/bb21ff22-3d53-4126-b3d9-0306425f545e" />
+
+-----
+#### 3. Vulnerability 2: Lack of Password Complexity Enforcements (CWE-521)
+* **Vulnerability Name:** Weak Password Policy and Low Entropy Acceptance
+* **Technical Identifier:** CWE-521 (Weak Password Requirements) / OWASP A07:2021-Identification and Authentication Failures
+* **Risk Rating:** Medium
+
+###### A. Description & Testing Proof
+During registration gateway configuration testing, the signup endpoint was evaluated for password entropy and strength verification requirements. An account was successfully registered using the purely sequential numeric payload `12345678`. The backend validator processed and saved the record without issuing warnings or blocking submission, confirming that the system originally only checked for a basic minimum character length but entirely lacked rules enforcing alphanumeric diversity.
+
+<img width="1624" height="845" alt="Auth_flaw2_bftTest01" src="https://github.com/user-attachments/assets/5ee229a5-c158-4586-b31c-2432de470fc9" />
+<img width="1872" height="921" alt="Auth_flaw2_bfrTest02" src="https://github.com/user-attachments/assets/32aa851b-acde-414e-87af-2f917ed9c948" />
+
+###### B. Security Risk Impact
+Allowing users to establish weak, easily guessable, or purely numeric passwords drastically lowers the cryptographic entropy of authentication credentials. It leaves the application highly susceptible to offline dictionary attacks, credential stuffing, and automated guessing utilities, as threat actors can easily predict standard sequential patterns and compromise user accounts, leading to total account takeover.
+
+###### C. Where the Code Was Updated
+* **File Directory Path:** `app/Filament/Auth/Register.php`
+* **Target Section:** Inside the field structural component array, specifically upgrading the validation chain layout inside the `getPasswordFormComponent()` method.
+
+###### D. Source Code Modifications
+In the original implementation, the system relied on generic validation settings. The mitigation replaces the default handler with an explicit rule validation chain that mandates multi-set character diversity to increase entry complexity.
+
+**Before Code (Vulnerable):**
 ----
 #### c. Authorization
 ##### 1. Technical Framework Overview
