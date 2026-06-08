@@ -163,11 +163,13 @@ The original code checked credential authenticity strings immediately, allowing 
 The Invoice Management System implements Role-Based Access Control (RBAC) to ensure that users can only perform actions according to their assigned responsibilities.
 
 Three user roles are available within the system:
-*• Superadmin – Full access to all system modules and records.
-*• Admin – Allowed to manage customers, invoices, recurring invoices, and payments.
-*• Customer – Limited to viewing information only and prohibited from modifying system records and cannot access the Customers page.
+
+* Superadmin – Full access to all system modules and records.
+* Admin – Allowed to manage customers, invoices, recurring invoices, and payments.
+* Customer – Allowed to view invoices, recurring invoices, and payment information, but prohibited from creating, modifying, or deleting records. Customers are also restricted from accessing the Customers management page.
 
 The authorization mechanism was implemented in the resource files responsible for managing Customers, Invoices, Recurring Invoices, and Payments.
+
 
 ##### 2. Authorization Architecture
 ##### Before Enhancement:
@@ -179,6 +181,7 @@ Role verification is performed before allowing access to system functions. The a
 
 [ 5 images after
 
+
 ##### 3. Vulnerability: Improper Authorization Control
 * **Vulnerability Name:** Broken Access Control (CWE-862)
 * **Risk Rating:** High
@@ -186,49 +189,52 @@ Role verification is performed before allowing access to system functions. The a
 ###### A. Description & Testing Proof
 Initially, the application lacked sufficient authorization controls on several resources. Any authenticated user could potentially access management functions intended only for administrators.
 
-For example, a Customer account could potentially access invoice management pages and modify invoice information if no authorization checks were applied.
+For example, a Customer account could potentially access invoice management pages and modify invoice information if no authorization checks were applied. This violates the principle of least privilege and increases the risk of unauthorized modification of business records.
 
-This violates the principle of least privilege and increases the risk of unauthorized modification of business records.
 
 ###### B. Security Risk Impact
 Insufficient authorization controls may allow attackers or unauthorized users to:
 
 * Modify invoice information
-* Create fraudulent payments
+* Create unauthorized payment records
 * Delete customer records
 * Access sensitive business data
 * Disrupt normal business operations
 
 Such actions could compromise data integrity, financial records, and system reliability.
 
+
 ###### C. Where the Code Was Updated
-* **File Directory Path:** `app/Filament/Resources/CustomerResource.php
-  app/Filament/Resources/InvoiceResource.php
-*app/Filament/Resources/RecurringInvoiceResource.php
-*app/Filament/Resources/PaymentResource.php
-`
+* **File Directory Path:** 
+* `app/Filament/Resources/CustomerResource.php`
+* `app/Filament/Resources/InvoiceResource.php`
+* `app/Filament/Resources/RecurringInvoiceResource.php`
+* `app/Filament/Resources/PaymentResource.php`
+
 * **Target Schema Section:** Authorization methods added within each Resource class.
 
 ###### D. Source Code Modifications
 **I. InvoiceResource.php** 
 
-Before Code (Vulnerable)
-After Code (Mitigated and Hardened)
+*Before Code (Vulnerable)
+
+*After Code (Mitigated and Hardened)
 
 
 **II. RecurringInvoiceResource.php** 
 
-Before Code (Vulnerable)
-After Code (Mitigated and Hardened)
+*Before Code (Vulnerable)
+*After Code (Mitigated and Hardened)
 
 **III. PaymentResource.php** 
-Before Code (Vulnerable)
-After Code (Mitigated and Hardened)
+*Before Code (Vulnerable)
+*After Code (Mitigated and Hardened)
 
 **IV. CustomerResource.php** 
 
-Before Code (Vulnerable)
-After Code (Mitigated and Hardened)
+*Before Code (Vulnerable)
+*After Code (Mitigated and Hardened)
+
 
 ###### E. Summary & Mitigation Result
 In summary, the original application lacked sufficient authorization controls, increasing the possibility of unauthorized access to administrative functions.
@@ -239,7 +245,7 @@ This implementation follows the Principle of Least Privilege and significantly r
 
 
 ----
-#### d. Database Security Principles- SQL Injection Prevention
+#### d. Database Security Principles
 
 ##### 1. Technical Framework Overview
 
@@ -251,13 +257,18 @@ The SQL Injection security review focused on invoice-related database operations
 
 ##### 2. Database Security Architecture
 
-* **Laravel Eloquent ORM:** The system performs database operations using Laravel Eloquent ORM rather than manually written SQL statements.
+**Before Security Review** 
+The application was already developed using Laravel Eloquent ORM through Filament Resource components and Eloquent Models. Database queries were executed through ORM methods rather than raw SQL statements.
 
-* **Automatic Query Parameterization:** Eloquent automatically converts query conditions into parameterized SQL queries, preventing user-supplied values from being interpreted as executable SQL commands.
+**After Security Review** 
+A security review was conducted to verify that database interactions continue to use Eloquent ORM and parameterized queries. Additional validation rules were also implemented at the application layer to ensure that only valid data reaches the database.
 
-* **Database Security Review:** A security review was conducted to verify that invoice-related database operations continue to use Eloquent query methods instead of raw SQL statements.
+This approach provides multiple layers of protection:
+* Input Validation Layer (where is the code)
+* Eloquent ORM Query Layer (where is the code)
+* Database Query Binding Layer (where is the code)
+Together, these controls help prevent SQL Injection attempts from reaching the database engine.
 
-Together, these layers provide protection against SQL Injection attacks and help preserve database integrity.
 
 #### 3. Vulnerability: SQL Injection (CWE-89)
 
@@ -266,13 +277,13 @@ Together, these layers provide protection against SQL Injection attacks and help
 
 ###### A. Description & Testing Review
 
-SQL Injection occurs when user-controlled input is directly concatenated into SQL statements without proper parameterization or sanitization.
+SQL Injection occurs when user-controlled input is inserted directly into SQL statements without proper parameterization or sanitization.
 
-If raw SQL queries are implemented incorrectly, attackers may inject malicious SQL payloads into application inputs and manipulate database operations.
+If raw SQL statements are used improperly, attackers may attempt to manipulate database queries by injecting malicious SQL payloads into application inputs.
 
-During the security assessment, invoice-related database functionality was reviewed to verify that queries were executed through Laravel Eloquent ORM rather than dynamically concatenated SQL statements.
+During the security assessment, database-related functionality was reviewed to verify that queries were executed through Laravel Eloquent ORM rather than dynamically concatenated SQL strings.
+The review confirmed that invoice-related database operations utilize Eloquent methods, which automatically apply parameterized query bindings.
 
-The review confirmed that database operations utilize Eloquent query methods, which automatically apply parameterized query bindings.
 
 **Image**
 
@@ -291,7 +302,13 @@ Such attacks may compromise the confidentiality, integrity, and availability of 
 ###### C. Where the Code Was Reviewed
 
 * **File Directory Path:** `app/Models/Invoice.php`
-* **Target Function:** `generate_invoice_number($tenant_id)`
+* **Target Function:** `static function generate_invoice_number($tenant_id)
+{
+    return Invoice::where('team_id', $tenant_id)
+        ->orderBy('id', 'desc')
+        ->first()?->id + 1;
+}
+`
 
 ###### D. Source Code Review
 
