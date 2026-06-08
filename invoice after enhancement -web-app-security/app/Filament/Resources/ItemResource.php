@@ -38,12 +38,14 @@ class ItemResource extends Resource
 
                         Forms\Components\RichEditor::make('info')
                             ->columnSpan('full')
-                            ->dehydrateStateUsing(fn ($state) => strip_tags($state)),
+                            ->rules([
+                                'not_regex:/<script\b[^>]*>(.*?)<\/script>/is'
 
                         Forms\Components\Textarea::make('short_description')
                             ->rows(2)
                             ->columnSpan('full')
-                            ->dehydrateStateUsing(fn ($state) => strip_tags($state)),
+                            ->rules([
+                                'not_regex:/<script\b[^>]*>(.*?)<\/script>/is'
 
                         Forms\Components\Select::make('categories')
                             ->multiple()
@@ -146,29 +148,29 @@ class ItemResource extends Resource
                         Forms\Components\FileUpload::make('product_image')
                             ->multiple()
                             ->directory('product_image')
+                            ->image()
                             ->acceptedFileTypes([
                                 'image/jpeg',
                                 'image/png'
                             ])
+                            ->disk('local')
                             ->maxSize(2048)
                             ->preserveFilenames(false)
                             ->downloadable()
                             ->columnSpanFull(),
                         Forms\Components\FileUpload::make('attachment')
                             ->multiple()
-                            ->downloadable()
+                            ->disk('local')
                             ->directory('products')
                             ->acceptedFileTypes([
-                                'image/*',          // Accept all image formats (jpg, png, gif, webp, etc.)
-                                'application/pdf',  // PDF documents
-                                'application/msword', // DOC
-                                'application/vnd.openxmlformats-officedocument.*', // DOCX, XLSX, PPTX
-                                'text/*',           // Plain text, CSV, JSON, XML, HTML, CSS
-                                'audio/*',          // All audio formats (mp3, wav, ogg, etc.)
-                                'video/*',          // All video formats (mp4, webm, mkv, etc.)
-                                'application/zip',  // ZIP files
-                                'application/x-rar-compressed', // RAR files
+                                'image/jpeg',
+                                'image/png',
+                                'text/plain',
+                                'text/csv',
+                                'application/pdf'
                             ])
+                            ->maxSize(2048)
+                            ->preserveFilenames(false)
                             ->columnSpanFull(),
                     ])
                     ->columns(2)
