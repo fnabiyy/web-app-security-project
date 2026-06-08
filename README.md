@@ -306,9 +306,9 @@ The application was already developed using Laravel Eloquent ORM through Filamen
 A security review was conducted to verify that database interactions continue to use Eloquent ORM and parameterized queries. Additional validation rules were also implemented at the application layer to ensure that only valid data reaches the database.
 
 This approach provides multiple layers of protection:
-* Input Validation Layer (where is the code)
-* Eloquent ORM Query Layer (where is the code)
-* Database Query Binding Layer (where is the code)
+* Eloquent ORM Query Layer 
+* Database Query Binding Layer
+
 Together, these controls help prevent SQL Injection attempts from reaching the database engine.
 
 
