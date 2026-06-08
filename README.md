@@ -565,50 +565,57 @@ Laravel's CSRF middleware protects all state-changing requests by validating CSR
 #### f. File Security Principles
 ##### 1. Technical Framework Overview
 
-The application implements file security controls to protect uploaded content, prevent malicious file execution, and reduce the risk of sensitive file exposure.
-
-The security enhancements focus on:
-
-- Restricting accepted file types.
-- Limiting uploaded file sizes.
-- Preventing predictable filenames.
-- Protecting sensitive application directories and configuration files.
-- Reducing information disclosure through production configuration settings
+The application was enhanced to improve file upload security and reduce the risk of malicious file uploads, unauthorized file access, and storage abuse. Security controls were implemented on both product image uploads and attachment uploads to ensure that only approved file types are accepted and stored securely.
 
 ##### 2. Vulnerability 1: Unrestricted File Upload
 - **Vulnerability Name:** Unrestricted Upload of Dangerous File Types
 - **Technical Identifier:** CWE-434 (Unrestricted Upload of File with Dangerous Type)
 - **Risk Rating:** High
 
-###### A. Description & Testing Proof
+###### A. Description
 
-The application originally accepted uploaded files with minimal restrictions. Attackers could potentially attempt to upload malicious files disguised as legitimate content.
+The original implementation allowed a broad range of file types to be uploaded through the attachment component, including images, text files, audio files, video files, compressed archives, and various document formats. Such broad permissions increase the attack surface and may expose the application to malicious file uploads or unnecessary storage consumption.
 
 ###### B. Security Risk Impact
 
-If unrestricted file uploads are permitted, attackers may:
+Improper file upload restrictions may allow attackers to:
 
-- Upload malicious executable files.
-- Distribute malware through uploaded content.
-- Consume excessive server storage resources.
-- Exploit file-processing vulnerabilities.
+- Upload malicious or unnecessary files.
+- Abuse server storage resources.
+- Distribute harmful content through uploaded files.
+- Increase the risk of file-related vulnerabilities.
 
 ###### C. Where the Code Was Updated
 - **File Directory Path:** `app/Filament/Resources/ItemResource.php`
-- **Target Schema Section:** Product Image Upload Component
+- **Target Schema Section:** File Upload Component
 
 ###### D. Source Code Modifications
 
-Before Code (Vulnerable):
-<img width="630" height="168" alt="Screenshot 2026-06-08 035833" src="https://github.com/user-attachments/assets/e24b1b52-d918-44c9-93f9-399a561c3e0d" />
+The file upload components were enhanced with stricter validation and storage controls.
 
-After Code (Mitigated & Hardened):
-<img width="659" height="308" alt="Screenshot 2026-06-08 035501" src="https://github.com/user-attachments/assets/7e9b533b-3c0d-4106-b613-d9b697808366" />
+Product Image Upload
+
+<img width="645" height="367" alt="image" src="https://github.com/user-attachments/assets/ae0c1415-6619-4c4c-bb17-cf559f63cedc" />
+
+
+Attachment Upload
+<img width="601" height="395" alt="image" src="https://github.com/user-attachments/assets/9b80ca80-2945-465b-9677-e5e2092f0111" />
+
+
+The following security controls were implemented:
+
+- Product images are restricted to JPEG and PNG formats only.
+- Attachments are restricted to approved business-related file formats (JPG, PNG, TXT, CSV, and PDF).
+- Uploaded files are limited to a maximum size of 2 MB.
+- Original filenames are not preserved, reducing the risk of filename enumeration and overwrite attacks.
+- Product images are stored using Laravel's local storage disk to reduce the risk of direct file exposure.
 
 
 ###### E. Summary & Mitigation Result
 
-The enhanced implementation only accepts JPEG and PNG image formats, limits uploads to 2 MB, and automatically generates safe filenames. These controls significantly reduce the risk of malicious file uploads, storage abuse, and filename-based attacks.
+The enhanced implementation follows the principle of allowing only approved file types required by business operations. Compared to the original implementation, which accepted a wider range of file formats, the new controls significantly reduce the attack surface by restricting uploads to trusted formats, enforcing file size limits, and preventing predictable filenames.
+
+These improvements help protect the application against malicious file uploads, excessive storage consumption, and unauthorized access to uploaded files.
 
 ##### 3. Protection of Sensitive Files and Directories
 
@@ -619,6 +626,21 @@ The application also protects critical system resources from unauthorized exposu
 - `storage/`
 - `composer.json`
 
-These resources contain application secrets, framework dependencies, and internal configuration data that should never be directly accessible by end users.
+These resources contain:
 
-By restricting access to these resources and limiting file upload capabilities, the overall security posture of the application is significantly improved.
+- Application secrets and environment variables.
+- Database credentials.
+- Framework dependencies.
+- Internal application configuration.
+
+Laravel's directory structure ensures that these resources remain outside the publicly accessible web root.
+
+The production environment is also configured with:
+
+`APP_DEBUG=false`
+
+Disabling debug mode prevents stack traces, configuration values, file paths, and sensitive system information from being disclosed to attackers.
+
+###### Summary
+
+By combining upload validation, file-type restrictions, size limitations, randomized filenames, protected application directories, and secure production configuration settings, the application significantly improves its resistance against file-related attacks and information disclosure vulnerabilities.
