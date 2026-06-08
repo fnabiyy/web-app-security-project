@@ -1,4 +1,5 @@
-# INFO 4345 Web Application Security
+# INFO 4345 Web Application Security Semester 2, 2025/2026
+
 ## Group Project 2: Web Application Security Enhancement Report
 
 ---
@@ -10,6 +11,9 @@
 | NURFATIEHAH NABILAH BINTI ABDUL NAJID | 2317546 | 
 | FADHILAH BINTI ABD MUN'EM | 2313560 |
 | AIZATUL MAZNI BINTI MAZLAN | 2316248 |
+
+GROUP : NeoTech
+LECTURER NAME : DR. NAJHAN BIN MUHAMAD IBRAHIM
 
 ---
 
