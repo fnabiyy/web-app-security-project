@@ -40,7 +40,7 @@ The core objectives of the security engineering modifications implemented in thi
 
 -----
 
-#### a. Input Validation & Data Sanitization Framework
+### **a. Input Validation & Data Sanitization Framework**
 
 ##### 1. Technical Framework Overview
 The system implements a defense-in-depth validation architecture across two critical entry points within the Invoice Creation interface to ensure that invalid or malicious form payloads are dropped before interacting with database threads:
