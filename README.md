@@ -170,6 +170,8 @@ The original code checked credential authenticity strings immediately, allowing 
 
 <img width="751" height="721" alt="Auth_flaw1_after01" src="https://github.com/user-attachments/assets/c70ea9c3-c421-46c4-a912-1c74f1277382" />
 <img width="579" height="460" alt="Auth_flaw1_after02" src="https://github.com/user-attachments/assets/4b7d59aa-97c2-4080-ac5d-d28a403d9e78" />
+<img width="696" height="413" alt="Screenshot 2026-06-09 090627" src="https://github.com/user-attachments/assets/61793f32-0c14-467b-b5f2-5dcbb01a0747" />
+
 
 ###### E. Summary & Mitigation Result
 In simple terms, the original login page allowed anyone to guess passwords indefinitely without any penalties. 
@@ -211,7 +213,7 @@ In the original implementation, the system relied on generic validation settings
 **After Code (Mitigated & Hardened):**
 
 <img width="752" height="374" alt="Auth_flaw2_afterCode" src="https://github.com/user-attachments/assets/aab95a13-6112-4773-b9de-84579546ea68" />
-<img width="696" height="413" alt="Screenshot 2026-06-09 090627" src="https://github.com/user-attachments/assets/efdab24c-0521-4147-bb16-73d39f3f4627" />
+
 
 
 ###### E. Summary & Mitigation Result
